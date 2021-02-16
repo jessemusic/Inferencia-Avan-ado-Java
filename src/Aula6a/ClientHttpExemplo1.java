@@ -27,11 +27,11 @@ public class ClientHttpExemplo1 {
         cconnectAkamaiHttp11Client();
     }
 
-    private static void cconnectAkamaiHttp11Client(){
-        System.out.println("Running HTTP/1.1 example ...");
+    private static void cconnectAkamaiHttp11Client() throws IOException, InterruptedException {
+        System.out.println("Running HTTP/2 example ...");
         try{
             HttpClient httpClient = HttpClient.newBuilder()
-                    .version( HttpClient.Version.HTTP_1_1)
+                    .version( HttpClient.Version.HTTP_2)
                     .proxy( ProxySelector.getDefault())
                     .build();
             long start = System.currentTimeMillis();
@@ -61,10 +61,8 @@ public class ClientHttpExemplo1 {
                                 HttpResponse<String> imageResponse = httpClient.send( imgRequest, HttpResponse.BodyHandlers.ofString());
                                 System.out.println("Imagem carregada :::"+ image + ", status code :::" + imageResponse.statusCode());
 
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                            } catch (IOException | InterruptedException e) {
+                            System.out.println("Mensagem de error requisição de recuperar imagem " + image);
                             }
                         });
                         future.add(imgFuture);
@@ -74,19 +72,13 @@ public class ClientHttpExemplo1 {
         future.forEach( f -> {
             try {
                 f.get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException e) {
+                System.out.println(" Error ao esperar carregar imagem do futuro");
             }
         });
 
         long end = System.currentTimeMillis();
             System.out.println("Tempo de carregamento total : "+ (end - start) + "ms");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }finally {
             executor.shutdown();
         }
